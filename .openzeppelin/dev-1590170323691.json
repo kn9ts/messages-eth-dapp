@@ -1,0 +1,19 @@
+{
+  "contracts": {},
+  "solidityLibs": {},
+  "proxies": {
+    "messagescontract/Messages": [
+      {
+        "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
+        "kind": "NonProxy",
+        "bytecodeHash": "0196f50aa19b3655cb7456ea9c73d50652d2241f2e3972fb584b8021138c1638"
+      },
+      {
+        "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
+        "kind": "NonProxy",
+        "bytecodeHash": "3a3686ec30e74196f8926e0295be6337a0ba62d491466007e069f3cbd19a25d8"
+      }
+    ]
+  },
+  "manifestVersion": "2.2"
+}

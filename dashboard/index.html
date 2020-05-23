@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>First DApp</title>
+		<!-- Required meta tags -->
+		<meta name="viewport" content="width=device-width initial-scale=1 maximum-scale=1.0 user-scalable=no shrink-to-fit=no">
+		<meta name="theme-color" content="#3700ff">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<meta http-equiv="cleartype" content="on"></head>
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+		<link href="https://fonts.googleapis.com/css2?family=Carter+One&family=Rubik&display=swap" rel="stylesheet">
+		<style>
+			html, body {
+				height: 100%;
+				width: 100%;
+				overflow-x: hidden;
+				/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#d2ff52+0,91e842+100;Neon */
+				background: #d2ff52; /* Old browsers */
+				background: -moz-linear-gradient(-45deg,  #d2ff52 0%, #91e842 100%); /* FF3.6-15 */
+				background: -webkit-linear-gradient(-45deg,  #d2ff52 0%,#91e842 100%); /* Chrome10-25,Safari5.1-6 */
+				background: linear-gradient(135deg,  #d2ff52 0%,#91e842 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+
+			}
+			.margin-top {
+				margin-top: 10%;
+			}
+			h1,h2,h3,h4,h5 {
+				font-family: 'Carter One', sans-serif;
+			}
+			p {
+				font-family: 'Rubik', sans-serif;
+				font-size: 1.25em;
+			}
+			small {
+				font-size: 0.65em;
+				padding-top: 5%;
+			}
+			.card {
+				border-radius: 7px;
+				border: 2px solid #6ccc00;
+			}
+			.card-title{
+				padding-bottom: 2%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="row justify-content-center">
+			<div class="col-4 margin-top">
+				<div class="card">
+					<div class="card-body">
+						<h3 class="card-title text-center">Messages Dapp</h3>
+						<p class="card-text text-center text-muted">
+							<span id="message">Fetching the message...</span>
+							<br>
+							<small>
+								Contract:
+								<span id="smart-contract-hex"></span>
+							</small>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="https://cdn.jsdelivr.net/npm/web3@1.2.6/dist/web3.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+	<script>
+		const web3 = new Web3("http://localhost:8545");
+		const myContractAddress = "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24";
+		const smartContractABIv2 = [
+			{ inputs: [], stateMutability: "nonpayable", type: "constructor" },
+			{
+				anonymous: false,
+				inputs: [
+					{
+						components: [
+							{ internalType: "string", name: "handler", type: "string" },
+							{ internalType: "string", name: "message", type: "string" },
+							{ internalType: "uint256", name: "datetime", type: "uint256" }
+						],
+						indexed: false,
+						internalType: "struct Messages.Message",
+						name: "newMessageFromSender",
+						type: "tuple"
+					}
+				],
+				name: "MessageRecieved",
+				type: "event"
+			},
+			{
+				inputs: [],
+				name: "get",
+				outputs: [
+					{
+						components: [
+							{ internalType: "string", name: "handler", type: "string" },
+							{ internalType: "string", name: "message", type: "string" },
+							{ internalType: "uint256", name: "datetime", type: "uint256" }
+						],
+						internalType: "struct Messages.Message",
+						name: "",
+						type: "tuple"
+					}
+				],
+				stateMutability: "view",
+				type: "function"
+			},
+			{
+				inputs: [{ internalType: "address", name: "", type: "address" }],
+				name: "messages",
+				outputs: [
+					{ internalType: "string", name: "handler", type: "string" },
+					{ internalType: "string", name: "message", type: "string" },
+					{ internalType: "uint256", name: "datetime", type: "uint256" }
+				],
+				stateMutability: "view",
+				type: "function"
+			},
+			{
+				inputs: [
+					{
+						components: [
+							{ internalType: "string", name: "handler", type: "string" },
+							{ internalType: "string", name: "message", type: "string" },
+							{ internalType: "uint256", name: "datetime", type: "uint256" }
+						],
+						internalType: "struct Messages.Message",
+						name: "newMessageFromSender",
+						type: "tuple"
+					}
+				],
+				name: "post",
+				outputs: [],
+				stateMutability: "nonpayable",
+				type: "function"
+			}
+		];
+		const theSmartContract = new web3.eth.Contract(smartContractABIv2, myContractAddress);
+		const messageDiv = document.getElementById("message");
+		const { methods: Messages } = theSmartContract;
+
+		Messages.get().call()
+			.then(initialMessageResponse => {
+				console.log(initialMessageResponse);
+				messageDiv.innerHTML = '';
+				// const [handler, message, timestamp] = initialMessageResponse;				`
+				initialMessageResponse.forEach((messagePart) => {
+					const span = document.createElement("span");
+					const node = document.createTextNode(messagePart);
+					span.appendChild(node);
+					span.appendChild(document.createElement("br"));
+					messageDiv.appendChild(span);
+				})
+			});
+
+		document.getElementById("smart-contract-hex").innerHTML = myContractAddress;
+	</script>
+</html>
