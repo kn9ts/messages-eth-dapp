@@ -48,28 +48,30 @@
 		</style>
 	</head>
 	<body>
-		<div class="row justify-content-center">
+		<div class="row justify-content-center" id="app">
 			<div class="col-4 margin-top">
 				<div class="card">
 					<div class="card-body">
-						<h3 class="card-title text-center">Messages Dapp</h3>
-						<p class="card-text text-center text-muted">
-							<span id="message">Fetching the message...</span>
+						<h3 class="card-title text-center">{{ appTitle }}</h3>
+						<div class="card-text text-center text-muted">
+							<p id="message" v-if="message">Handler : {{ message.handler }} </p>
+							<p id="message" v-if="message">Message : {{ message.message }} </p>
+							<p id="message" v-if="message">Timestamp : {{ message.timestamp }} </p>
+							<p id="message" v-else> Loading your message... </p>
 							<br>
-							<small>
-								Contract:
-								<span id="smart-contract-hex"></span>
-							</small>
-						</p>
+							<small>Contract: {{ contractAddress }}</small>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</body>
-	<script src="https://cdn.jsdelivr.net/npm/web3@1.2.6/dist/web3.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/web3@1.2.6/dist/web3.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 	<script>
 		const web3 = new Web3("http://localhost:8545");
 		const myContractAddress = "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24";
@@ -142,23 +144,27 @@
 			}
 		];
 		const theSmartContract = new web3.eth.Contract(smartContractABIv2, myContractAddress);
-		const messageDiv = document.getElementById("message");
 		const { methods: Messages } = theSmartContract;
 
-		Messages.get().call()
-			.then(initialMessageResponse => {
-				console.log(initialMessageResponse);
-				messageDiv.innerHTML = '';
-				// const [handler, message, timestamp] = initialMessageResponse;				`
-				initialMessageResponse.forEach((messagePart) => {
-					const span = document.createElement("span");
-					const node = document.createTextNode(messagePart);
-					span.appendChild(node);
-					span.appendChild(document.createElement("br"));
-					messageDiv.appendChild(span);
-				})
-			});
-
-		document.getElementById("smart-contract-hex").innerHTML = myContractAddress;
+		const app = new Vue({
+			el: '#app',
+			data: {
+				appTitle: 'Messages Dapp',
+				contractAddress: myContractAddress,
+				message: null,
+			},
+			mounted() {
+				Messages.get().call()
+					.then((lastMessageStoredResponse) => {
+						console.log(lastMessageStoredResponse);
+						const [handler, message, timestamp] = lastMessageStoredResponse;
+						this.message = {
+							handler,
+							message,
+							timestamp: moment.unix(timestamp).format('LLL'),
+						};
+					});
+			},
+		});
 	</script>
 </html>
