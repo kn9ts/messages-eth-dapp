@@ -22,7 +22,6 @@
 				background: -webkit-linear-gradient(-45deg,  #d2ff52 0%,#91e842 100%); /* Chrome10-25,Safari5.1-6 */
 				background: linear-gradient(135deg,  #d2ff52 0%,#91e842 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-
 			}
 			.margin-top {
 				margin-top: 10%;
@@ -43,7 +42,7 @@
 				border: 2px solid #6ccc00;
 			}
 			.card-title{
-				padding-bottom: 2%;
+				padding: 2% 0 0;
 			}
 		</style>
 	</head>
@@ -51,16 +50,22 @@
 		<div class="row justify-content-center" id="app">
 			<div class="col-4 margin-top">
 				<div class="card">
-					<div class="card-body">
+					<div class="card-header">
 						<h3 class="card-title text-center">{{ appTitle }}</h3>
-						<div class="card-text text-center text-muted">
-							<p id="message" v-if="message">Handler : {{ message.handler }} </p>
-							<p id="message" v-if="message">Message : {{ message.message }} </p>
-							<p id="message" v-if="message">Timestamp : {{ message.timestamp }} </p>
-							<p id="message" v-else> Loading your message... </p>
-							<br>
-							<small>Contract: {{ contractAddress }}</small>
+					</div>
+					<div class="card-body text-center">
+						<div class="card-text text-center text-muted" v-if="message">
+							<p id="handler">Handler: {{ message.handler }} </p>
+							<p id="message">Message: {{ message.message }} </p>
+							<p id="timestamp">Timestamp: {{ message.timestamp }} </p>
 						</div>
+						<div class="card-text text-center text-muted" v-else>
+							<p id="message">Loading your message...</p>
+						</div>
+					</div>
+
+					<div class="card-footer text-center">
+						<small class="text-center">Contract: {{ contractAddress }}</small>
 					</div>
 				</div>
 			</div>
