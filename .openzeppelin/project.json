@@ -18,5 +18,6 @@
     "solcVersion": "0.6.8",
     "artifactsDir": "build/contracts",
     "contractsDir": "contracts"
-  }
+  },
+  "telemetryOptIn": false
 }
