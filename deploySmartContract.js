@@ -1,9 +1,17 @@
 require('./env.js');
 const fs = require('fs');
+const path = require('path');
 const Web3 = require('web3');
 const connectedEthBlockchain = new Web3(process.env.ENDPOINT);
-const smartContractABI = JSON.parse(fs.readFileSync(process.env.CONTRACT_ABI));
-const smartContractByteCode = fs.readFileSync(process.env.CONTRACT_BYTECODE);
+
+const allFilesInBuildFolder = fs.readdirSync(path.join(__dirname, 'build'), {
+  withFileTypes: true,
+});
+const [smartContractABIFile, smartContractByteCodeFile] = allFilesInBuildFolder.filter(
+	(file) => file.isFile || file.includes('.abi') || file.includes('.bin')
+);
+const smartContractABI = JSON.parse(fs.readFileSync(`./build/${smartContractABIFile.name}`));
+const smartContractByteCode = fs.readFileSync(`./build/${smartContractByteCodeFile.name}`);
 
 (async function () {
 	let ethereumAddressToDeployFrom;
@@ -29,9 +37,9 @@ const smartContractByteCode = fs.readFileSync(process.env.CONTRACT_BYTECODE);
 	theSmartContract
 		.deploy({ data: smartContractByteCode })
 		.send({ from: ethereumAddressToDeployFrom, gas: 5000000 }).then((deployment) => {
-			const [smartContractABIFileName] = (process.env.CONTRACT_ABI).split('/').reverse();
+			const [smartContractABIFileName] = (`./build/${smartContractABIFile.name}`).split('/').reverse();
 			const [smartContractName] = smartContractABIFileName.split('.');
-			const smartContractFileName = [smartContractName, '.sol'];
+			const smartContractFileName = [smartContractName, '.sol'].join('');
 			console.log(`${ smartContractFileName || 'Smart contract' } was successfully deployed!`);
 			console.log(`${ smartContractFileName || 'Smart contract' } can be interfaced with at this address:`);
 			console.log(`Address: ${deployment.options.address}`);

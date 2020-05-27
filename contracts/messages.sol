@@ -4,6 +4,7 @@ pragma solidity >0.6.0;
 pragma experimental ABIEncoderV2;
 
 contract Messages {
+		address public creator;
 
 		struct Message {
 			string handler;
@@ -22,6 +23,7 @@ contract Messages {
 				'Hello world! Initializing the contract',
 				block.timestamp
 			);
+			creator = msg.sender;
 		}
 
 		// Receive and store incoming messages from different addresses/people

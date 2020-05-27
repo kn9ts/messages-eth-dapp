@@ -63,9 +63,16 @@
 							<p id="message">{{ defaultMessage }}</p>
 						</div>
 					</div>
-
+					<hr>
+					<div class="card-body text-center">
+						<div class="col-12">
+							<input type="text" class="form-control" v-model="newMessage" placeholder="My new message..." aria-label="My new message..." aria-describedby="button-addon2">
+							<br>
+							<button class="btn btn-primary" type="button" id="button-addon2" @click="updateMessage">Update Message</button>
+						</div>
+					</div>
 					<div class="card-footer text-center">
-						<small class="text-center">Contract: {{ contractAddress }}</small>
+						<small class="text-center">My ETH Address: {{ myEthereumAddress || 'Not provided' }}</small>
 					</div>
 				</div>
 			</div>
@@ -80,7 +87,7 @@
 	<script>
 		const web3 = new Web3("http://localhost:8545");
 		const myContractAddress = "0xD3aA556287Afe63102e5797BFDDd2A1E8DbB3eA5";
-		const smartContractABIv2 = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"indexed":false,"internalType":"struct Messages.Message","name":"newMessageFromSender","type":"tuple"}],"name":"MessageRecieved","type":"event"},{"inputs":[],"name":"get","outputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"internalType":"struct Messages.Message","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"messages","outputs":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"internalType":"struct Messages.Message","name":"newMessageFromSender","type":"tuple"}],"name":"post","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+		const smartContractABIv2 = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"indexed":false,"internalType":"struct Messages.Message","name":"newMessageFromSender","type":"tuple"}],"name":"MessageRecieved","type":"event"},{"inputs":[],"name":"creator","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"get","outputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"internalType":"struct Messages.Message","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"messages","outputs":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"components":[{"internalType":"string","name":"handler","type":"string"},{"internalType":"string","name":"message","type":"string"},{"internalType":"uint256","name":"datetime","type":"uint256"}],"internalType":"struct Messages.Message","name":"newMessageFromSender","type":"tuple"}],"name":"post","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 		const theSmartContract = new web3.eth.Contract(smartContractABIv2, myContractAddress);
 		const { methods: Messages } = theSmartContract;
 
@@ -88,9 +95,10 @@
 			el: '#app',
 			data: {
 				appTitle: 'Messages Dapp',
-				contractAddress: myContractAddress,
-				message: null,
 				defaultMessage: 'Loading your message...',
+				newMessage: null,
+				myEthereumAddress: null,
+				message: null,
 			},
 			mounted() {
 				Messages.get().call()
@@ -109,6 +117,21 @@
 							timestamp: moment.unix(timestamp).format('LLL'),
 						};
 					});
+
+				if (this.isMetaMaskInstalled()) {
+					ethereum.enable().then((avialableEthereumAddresses) => {
+						console.log(avialableEthereumAddresses);
+						const [myEthereumAddress] = avialableEthereumAddresses;
+						this.myEthereumAddress = myEthereumAddress;
+					});
+				}
+			},
+			methods: {
+				isMetaMaskInstalled() {
+					//Have to check the ethereum binding on the window object to see if it's installed
+					const { ethereum } = window;
+					return Boolean(ethereum && ethereum.isMetaMask);
+				},
 			},
 		});
 	</script>
