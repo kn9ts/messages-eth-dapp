@@ -101,7 +101,18 @@
 				message: null,
 			},
 			mounted() {
-				Messages.get().call()
+				if (this.isMetaMaskInstalled()) {
+					ethereum.enable().then((avialableEthereumAddresses) => {
+						console.log(avialableEthereumAddresses);
+						const [myEthereumAddress] = avialableEthereumAddresses;
+						this.myEthereumAddress = myEthereumAddress;
+						this.getMessage();
+					});
+				}
+			},
+			methods: {
+				getMessage() {
+					Messages.get().call({ from: this.myEthereumAddress })
 					.then((lastMessageStoredResponse) => {
 						console.log(lastMessageStoredResponse);
 						const [handler, message, timestamp] = lastMessageStoredResponse;
@@ -114,19 +125,29 @@
 						this.message = {
 							handler,
 							message,
-							timestamp: moment.unix(timestamp).format('LLL'),
+							timestamp: moment.unix(timestamp / 1000).utc().format('LLL'),
 						};
 					});
-
-				if (this.isMetaMaskInstalled()) {
-					ethereum.enable().then((avialableEthereumAddresses) => {
-						console.log(avialableEthereumAddresses);
-						const [myEthereumAddress] = avialableEthereumAddresses;
-						this.myEthereumAddress = myEthereumAddress;
-					});
-				}
-			},
-			methods: {
+				},
+				updateMessage() {
+					const messageStruct = {
+						handler: '@fromBrowser',
+						message: this.newMessage,
+						datetime: Date.now(),
+					};
+					const transactionObject = {
+						from: this.myEthereumAddress,
+					};
+					Messages.post(messageStruct).send(transactionObject)
+						.then((results) => {
+							console.log(arguments);
+							console.log('Message saved', results);
+							this.getMessage();
+						})
+						.catch((err) => {
+							throw err;
+						});
+				},
 				isMetaMaskInstalled() {
 					//Have to check the ethereum binding on the window object to see if it's installed
 					const { ethereum } = window;
