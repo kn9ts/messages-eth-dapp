@@ -99,13 +99,18 @@
 				newMessage: null,
 				myEthereumAddress: null,
 				message: null,
+				transactionObject: {},
 			},
 			mounted() {
 				if (this.isMetaMaskInstalled()) {
 					ethereum.enable().then((avialableEthereumAddresses) => {
 						console.log(avialableEthereumAddresses);
 						const [myEthereumAddress] = avialableEthereumAddresses;
+						this.transactionObject = {
+							from: myEthereumAddress,
+						};
 						this.myEthereumAddress = myEthereumAddress;
+						this.calculateGasCost();
 						this.getMessage();
 					});
 				}
@@ -135,13 +140,23 @@
 						message: this.newMessage,
 						datetime: Date.now(),
 					};
-					const transactionObject = {
-						from: this.myEthereumAddress,
-					};
-					Messages.post(messageStruct).send(transactionObject)
-						.then((results) => {
-							console.log(arguments);
-							console.log('Message saved', results);
+					Messages.post(messageStruct).send(this.transactionObject)
+						.then((transaction) => {
+							// transaction = {
+							// 	transactionHash: "0xdc50bb0511a920a619e723ce5c4a3c29d4dfed2eec8d711596746eaf560ab736",
+							// 	transactionIndex: 0,
+							// 	blockHash: "0x0658dad59c6dba4bcbe86f003c61cfc061d1a0a933ffd07e81494d08939c6f02",
+							// 	blockNumber: 14,
+							// 	events: { MessageRecieved: { ... } } },
+							// 	from: "0xffcf8fdee72ac11b5c542428b35eef5769c409f0"
+							// 	gasUsed: 87395,
+							// 	logsBloom: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000001000000004000000000000"
+							// 	status: true,
+							// 	to: "0xd3aa556287afe63102e5797bfddd2a1e8dbb3ea5",
+							// 	transactionHash: "0xdc50bb0511a920a619e723ce5c4a3c29d4dfed2eec8d711596746eaf560ab736",
+							// 	transactionIndex: 0,
+							// }
+							console.log('Message saved', transaction.blockHash);
 							this.getMessage();
 						})
 						.catch((err) => {
@@ -153,6 +168,19 @@
 					const { ethereum } = window;
 					return Boolean(ethereum && ethereum.isMetaMask);
 				},
+				calculateGasCost() {
+					web3.eth.getGasPrice()
+						.then((gasPrice) => {
+							this.transactionObject.gasPrice = gasPrice;
+							return web3.eth.estimateGas(this.transactionObject)
+						})
+						.then((gasLimit) => {
+							// const transactionFee = gasPrice * gasLimit;
+							this.transactionObject.gas = gasLimit * 1.5;
+							console.log(this.transactionObject);
+							return
+						});
+				}
 			},
 		});
 	</script>
