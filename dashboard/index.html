@@ -156,7 +156,7 @@
 							// 	transactionHash: "0xdc50bb0511a920a619e723ce5c4a3c29d4dfed2eec8d711596746eaf560ab736",
 							// 	transactionIndex: 0,
 							// }
-							console.log('Message saved', transaction.blockHash);
+							console.log('Transaction successful', transaction);
 							this.getMessage();
 						})
 						.catch((err) => {
@@ -169,14 +169,15 @@
 					return Boolean(ethereum && ethereum.isMetaMask);
 				},
 				calculateGasCost() {
+					// https://ethereum.stackexchange.com/questions/19665/how-to-calculate-transaction-fee
 					web3.eth.getGasPrice()
 						.then((gasPrice) => {
 							this.transactionObject.gasPrice = gasPrice;
-							return web3.eth.estimateGas(this.transactionObject)
+							return web3.eth.estimateGas(this.transactionObject);
 						})
 						.then((gasLimit) => {
 							// const transactionFee = gasPrice * gasLimit;
-							this.transactionObject.gas = gasLimit * 1.5;
+							this.transactionObject.gas = gasLimit * 1.75;
 							console.log(this.transactionObject);
 							return
 						});
